@@ -1,5 +1,6 @@
 const CONFIG = {
-    background: '#00000030', // only this format
+    background: '#00000050', // only this format
+    // background: '#000000ff', // only this format
     cxOffset: 0,
     cyOffset: 0,
     axisStarPrecision: window.innerWidth*.7,
@@ -23,7 +24,7 @@ class Star{
         this.firstFrame = true
         this.color = color;
         this.angle = angle;
-        this.radius = 0;
+        this.radius = .1;
         this.size = size;
         this.speed = speed;
         this.x = x;
@@ -50,12 +51,25 @@ class Canvas{
         this.cy = this.h/2 + CONFIG.cyOffset
     }
     render(){
-        function drawStar(star){
-            c.ctx.beginPath()
-            c.ctx.arc(star.x, star.y, star.radius, 0, 360)
-            c.ctx.closePath()
-            c.ctx.fillStyle = star.color
-            c.ctx.fill()
+        function getNewPositionStar(star, speed){
+            // star.x += speed * Math.cos(star.angle)
+            // star.y += speed * Math.sin(star.angle)
+            let x = star.x + speed * Math.cos(star.angle)
+            let y = star.y + speed * Math.sin(star.angle)
+            return [x, y]
+        }
+        function drawStar(canvas, star){
+            canvas.ctx.beginPath()
+            canvas.ctx.arc(star.x, star.y, star.radius, 0, 360)
+            canvas.ctx.closePath()
+            canvas.ctx.fillStyle = star.color
+            canvas.ctx.fill()
+            // canvas.ctx.beginPath()
+            // canvas.ctx.strokeStyle = CONFIG.starColor
+            // canvas.ctx.moveTo(star.x, star.y)
+            // canvas.ctx.lineTo(canvas.cx, canvas.cy)
+            // canvas.ctx.closePath()
+            // canvas.ctx.stroke()
         }
 
         this.ctx.fillStyle = CONFIG.background
@@ -78,10 +92,10 @@ class Canvas{
             let distx = Math.abs(this.cx-star.x) / (this.w/2/100)
             let disty = Math.abs(this.cy-star.y) / (this.h/2/100)
             star.radius+=CONFIG.starRadiusGrowing * star.size
-            star.speed += (distx + disty) * (star.radius * CONFIG.starAcceleration)
-            star.x += star.speed * Math.cos(star.angle)
-            star.y += star.speed * Math.sin(star.angle)
-            drawStar(star)
+            star.speed += (distx + disty) * (star.radius * CONFIG.starAcceleration);
+            
+            [star.x, star.y] = getNewPositionStar(star, star.speed)
+            drawStar(this, star)
         })
     }
     createStar(count){
